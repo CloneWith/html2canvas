@@ -81,9 +81,7 @@ export class CanvasRenderer {
         this.ctx.textBaseline = 'bottom';
         this._activeEffects = [];
         Logger.getInstance(options.id).debug(
-            `Canvas renderer initialized (${options.width}x${options.height} at ${options.x},${options.y}) with scale ${
-                options.scale
-            }`
+            `Canvas renderer initialized (${options.width}x${options.height} at ${options.x},${options.y}) with scale ${options.scale}`
         );
     }
 
@@ -142,7 +140,7 @@ export class CanvasRenderer {
         if (letterSpacing === 0) {
             this.ctx.fillText(text.text, text.bounds.left, text.bounds.top + text.bounds.height);
         } else {
-            const letters = toCodePoints(text.text).map(i => fromCodePoint(i));
+            const letters = toCodePoints(text.text).map((i) => fromCodePoint(i));
             letters.reduce((left, letter) => {
                 this.ctx.fillText(letter, left, text.bounds.top + text.bounds.height);
 
@@ -198,7 +196,7 @@ export class CanvasRenderer {
 
             if (styles.textDecorationLine.length) {
                 this.ctx.fillStyle = asString(styles.textDecorationColor || styles.color);
-                styles.textDecorationLine.forEach(textDecorationLine => {
+                styles.textDecorationLine.forEach((textDecorationLine) => {
                     switch (textDecorationLine) {
                         case TEXT_DECORATION_LINE.UNDERLINE:
                             // Draws a line at the baseline of the font
@@ -477,12 +475,14 @@ export class CanvasRenderer {
     }
 
     mask(paths: Path[]) {
+        var x = this.options.x,
+            y = this.options.y;
         this.ctx.beginPath();
-        this.ctx.moveTo(0, 0);
-        this.ctx.lineTo(this.canvas.width, 0);
-        this.ctx.lineTo(this.canvas.width, this.canvas.height);
-        this.ctx.lineTo(0, this.canvas.height);
-        this.ctx.lineTo(0, 0);
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(this.canvas.width + x, y);
+        this.ctx.lineTo(this.canvas.width + x, this.canvas.height + y);
+        this.ctx.lineTo(x, this.canvas.height + y);
+        this.ctx.lineTo(x, y);
         this.formatPath(paths.slice(0).reverse());
         this.ctx.closePath();
     }
@@ -570,7 +570,7 @@ export class CanvasRenderer {
                 const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
                 const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
 
-                processColorStops(backgroundImage.stops, lineLength).forEach(colorStop =>
+                processColorStops(backgroundImage.stops, lineLength).forEach((colorStop) =>
                     gradient.addColorStop(colorStop.stop, asString(colorStop.color))
                 );
 
@@ -592,7 +592,7 @@ export class CanvasRenderer {
                 if (rx > 0 && rx > 0) {
                     const radialGradient = this.ctx.createRadialGradient(left + x, top + y, 0, left + x, top + y, rx);
 
-                    processColorStops(backgroundImage.stops, rx * 2).forEach(colorStop =>
+                    processColorStops(backgroundImage.stops, rx * 2).forEach((colorStop) =>
                         radialGradient.addColorStop(colorStop.stop, asString(colorStop.color))
                     );
 
@@ -661,7 +661,7 @@ export class CanvasRenderer {
             styles.boxShadow
                 .slice(0)
                 .reverse()
-                .forEach(shadow => {
+                .forEach((shadow) => {
                     this.ctx.save();
                     const borderBoxArea = calculateBorderBoxPath(paint.curves);
                     const maskOffset = shadow.inset ? 0 : MASK_OFFSET;
@@ -683,7 +683,7 @@ export class CanvasRenderer {
                         this.path(shadowPaintingArea);
                     }
 
-                    this.ctx.shadowOffsetX = shadow.offsetX.number + maskOffset;
+                    this.ctx.shadowOffsetX = shadow.offsetX.number + maskOffset * window.devicePixelRatio;
                     this.ctx.shadowOffsetY = shadow.offsetY.number;
                     this.ctx.shadowColor = asString(shadow.color);
                     this.ctx.shadowBlur = shadow.blur.number;

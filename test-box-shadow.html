@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box Shadow Test</title>
+    <style>
+        .test-container {
+            padding: 50px;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .test-box {
+            width: 150px;
+            height: 100px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            text-align: center;
+            padding: 10px;
+        }
+        .shadow-1 {
+            box-shadow: 0.3em 0.3em lightgreen;
+        }
+        .shadow-2 {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .shadow-3 {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .shadow-4 {
+            box-shadow: 5px 5px 10px rgba(255, 0, 0, 0.5);
+        }
+        .shadow-5 {
+            box-shadow: -5px -5px 10px rgba(0, 0, 255, 0.5);
+        }
+        .shadow-6 {
+            box-shadow: 0 0 20px 5px rgba(255, 165, 0, 0.6);
+        }
+        .shadow-inset {
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+        .shadow-multiple {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        #result {
+            margin: 20px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Box Shadow Test for html2canvas</h1>
+    <div class="test-container" id="capture">
+        <div class="test-box shadow-1">Simple shadow<br>0.3em 0.3em lightgreen</div>
+        <div class="test-box shadow-2">Tailwind shadow-md<br>0 4px 6px rgba(0,0,0,0.1)</div>
+        <div class="test-box shadow-3">Large blur<br>0 10px 25px rgba(0,0,0,0.2)</div>
+        <div class="test-box shadow-4">Red shadow<br>5px 5px 10px red</div>
+        <div class="test-box shadow-5">Blue shadow<br>-5px -5px 10px blue</div>
+        <div class="test-box shadow-6">Spread shadow<br>0 0 20px 5px orange</div>
+        <div class="test-box shadow-inset">Inset shadow<br>inset 0 0 20px black</div>
+        <div class="test-box shadow-multiple">Multiple shadows<br>(two layers)</div>
+    </div>
+
+    <button onclick="captureImage()" style="margin: 20px; padding: 10px 20px; font-size: 16px;">
+        Capture with html2canvas
+    </button>
+
+    <div id="result"></div>
+
+    <script src="./dist/html2canvas.js"></script>
+    <script>
+        async function captureImage() {
+            const element = document.getElementById('capture');
+            const resultDiv = document.getElementById('result');
+
+            try {
+                resultDiv.innerHTML = '<p>Capturing...</p>';
+
+                const canvas = await html2canvas(element, {
+                    scale: window.devicePixelRatio || 1,
+                    logging: true
+                });
+
+                resultDiv.innerHTML = '<h2>Result:</h2>';
+                resultDiv.appendChild(canvas);
+
+                // Also create a downloadable link
+                const link = document.createElement('a');
+                link.download = 'box-shadow-test.png';
+                link.href = canvas.toDataURL();
+                link.textContent = 'Download Image';
+                link.style.display = 'block';
+                link.style.margin = '10px 0';
+                resultDiv.appendChild(link);
+
+            } catch (error) {
+                resultDiv.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+                console.error('Capture error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
