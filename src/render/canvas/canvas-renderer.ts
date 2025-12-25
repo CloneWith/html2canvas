@@ -4,7 +4,7 @@ import {ElementContainer, FLAGS} from '../../dom/element-container';
 import {BORDER_STYLE} from '../../css/property-descriptors/border-style';
 import {CSSParsedDeclaration} from '../../css';
 import {TextContainer} from '../../dom/text-container';
-import {Path, transformPath,reversePath} from '../path';
+import {Path, transformPath, reversePath} from '../path';
 import {BACKGROUND_CLIP} from '../../css/property-descriptors/background-clip';
 import {BoundCurves, calculateBorderBoxPath, calculateContentBoxPath, calculatePaddingBoxPath} from '../bound-curves';
 import {BezierCurve, isBezierCurve} from '../bezier-curve';
@@ -200,7 +200,7 @@ export class CanvasRenderer extends Renderer {
                                     this.ctx.shadowColor = asString(textShadow.color);
                                     this.ctx.shadowOffsetX = textShadow.offsetX.number * this.options.scale;
                                     this.ctx.shadowOffsetY = textShadow.offsetY.number * this.options.scale;
-                                    this.ctx.shadowBlur = textShadow.blur.number * this.options.scale;;
+                                    this.ctx.shadowBlur = textShadow.blur.number * this.options.scale;
 
                                     this.renderTextWithLetterSpacing(text, styles.letterSpacing, baseline);
                                 });
@@ -524,15 +524,17 @@ export class CanvasRenderer extends Renderer {
     mask(paths: Path[]): void {
         this.ctx.beginPath();
         this.ctx.save();
+        const x = this.options.x,
+            y = this.options.y;
         // reset tranform to identity
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-        this.ctx.moveTo(0, 0);
-        this.ctx.lineTo(this.canvas.width, 0);
-        this.ctx.lineTo(this.canvas.width, this.canvas.height);
-        this.ctx.lineTo(0, this.canvas.height);
-        this.ctx.lineTo(0, 0);
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(this.canvas.width + x, y);
+        this.ctx.lineTo(this.canvas.width + x, this.canvas.height + y);
+        this.ctx.lineTo(x, this.canvas.height + y);
+        this.ctx.lineTo(x, y);
         this.ctx.restore();
-        this.formatPath(reversePath(paths)); 
+        this.formatPath(reversePath(paths));
         this.ctx.closePath();
     }
 
@@ -715,7 +717,7 @@ export class CanvasRenderer extends Renderer {
 
             if (!isTransparent(styles.backgroundColor)) {
                 this.ctx.fillStyle = asString(styles.backgroundColor);
-                this.ctx.fill();                
+                this.ctx.fill();
             }
 
             await this.renderBackgroundImage(paint.container);
@@ -745,18 +747,16 @@ export class CanvasRenderer extends Renderer {
                         this.ctx.clip();
                         this.path(shadowPaintingArea);
                     }
-                    this.ctx.shadowOffsetX =  maskOffset;
+                    this.ctx.shadowOffsetX = maskOffset * window.devicePixelRatio;
                     this.ctx.shadowOffsetY = 0;
                     this.ctx.shadowColor = asString(shadow.color);
                     this.ctx.shadowBlur = shadow.blur.number;
                     this.ctx.fillStyle = asString(shadow.color);
-                    if(shadow.blur.number){
-                        this.ctx.filter = `blur(${shadow.blur.number}px)`
+                    if (shadow.blur.number) {
+                        this.ctx.filter = `blur(${shadow.blur.number}px)`;
                     }
-                    this.ctx.fill()
-                    this.ctx.restore()
-                    
-
+                    this.ctx.fill();
+                    this.ctx.restore();
                 });
         }
 
@@ -954,7 +954,7 @@ const canvasTextAlign = (textAlign: TEXT_ALIGN): CanvasTextAlign => {
 const iOSBrokenFonts = ['-apple-system', 'system-ui'];
 
 const fixIOSSystemFonts = (fontFamilies: string[]): string[] => {
-    return /iPhone OS 15_(0|1)/.test(window.navigator.userAgent)
+    return /iPhone OS 15_([01])/.test(window.navigator.userAgent)
         ? fontFamilies.filter((fontFamily) => iOSBrokenFonts.indexOf(fontFamily) === -1)
         : fontFamilies;
 };
